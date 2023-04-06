@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title><%= title %></title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+    </head>
+    <body>
+        <div class="container">
+            <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top" id="mainNav">
+                <div class="container px-4">
+                    <a class="navbar-brand" href="/">Users</a>
+                    <% if(cookie){ %>
+                        <a href="/logout" class="navbar-brand">Logout</a>
+                        <a href="/user-profile" class="navbar-brand">Profile</a>
+                    <% } else { %>
+                        <a href="/login" class="navbar-brand">Login</a>
+                    <% } %>
+                    <% if(cookie){ %><a href="/categories/category/add-category" class="navbar-brand">Add Categories</a><% } %>
+                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
+                    <div class="collapse navbar-collapse" id="navbarResponsive">
+                        <ul class="navbar-nav ms-auto">
+                            <li class="nav-item"><a href="/categories" class="nav-link">Categories</a></li>
+                            <li class="nav-item"><a href="/products" class="nav-link">Products</a></li><br><br>
+                        </ul>
+                    </div>
+                </div>
+            </nav><br><br>
+            <br><br><h2><%= title %></h2>
+            <form action="/categories/category/update-category" method="post">
+                <input type="hidden" value="<%= category.id %>" name="id">
+                <div class="form-group">
+                    <label for="cat-image">Category Image : </label>
+                    <input type="file" name="cat_image" id="cat_image" placeholder="Upload a file" value="<%= category.cat_image %>">
+                </div>
+                <div class="form-group">
+                    <label for="cat-name">Category Name : </label>
+                    <input type="text" class="form-control" id="cat_name" placeholder="Enter category name" name="cat_name" value="<%= category.cat_name %>">
+                </div>
+                <button type="submit" class="btn btn-primary">Update</button>
+            </form>
+        </div>
+    </body>
+</html>

@@ -1,0 +1,260 @@
+const editUserPermissionRoute = async (req, res) => {
+    var cookie = '';
+    if(req.cookies.jwt_token){
+        cookie  = req.headers.cookie.split(' ')[0].split('=')[1].replace(";", "");
+    }
+    let user_id = req.params.id;
+    let role_sql = `SELECT role_id FROM user_permission WHERE user_id = '${user_id}'`;
+    conn.query(role_sql, function(err, result){
+        if(err) throw err;
+        var user_roles = result;
+        let sql = `SELECT role_id, role_name FROM roles`;
+        conn.query(sql, function(err, results) {
+            if(err) throw err;
+            let sql = `SELECT users.id, roles.role_id, roles.role_name, users.name, users.email, users.password FROM users LEFT JOIN roles ON users.role = roles.role_id WHERE id = ${user_id}`;
+            conn.query(sql, async function(err, result) {
+                if(err) throw err;
+                var data = [];
+                let boolean = 'false';
+                results.forEach(res=>{
+                    boolean = 'false';
+                    user_roles.forEach(resp=>{
+                        if(resp.role_id == res.role_id){
+                            boolean = 'true';
+                        }
+                    })
+                    res.isActive = JSON.parse(boolean);
+                    data.push(res);
+                })
+                const user_role_id = result[0].role_id;
+                var edit_permission = `SELECT permission_id FROM user_role_permission WHERE role_id = '${user_role_id}'`;
+                conn.query(edit_permission, function(err, per_result) {
+                    if(err) throw err;
+                    var permissions = 'SELECT permission_id, permission FROM permissions';
+                    conn.query(permissions, function(err, permissions_result){
+                        if(err) throw err;
+                        var permission_data = [];
+                        let boolean = 'false';
+                        permissions_result.forEach(permission_result=>{
+                            boolean = 'false';
+                            per_result.forEach(per=>{
+                                if(permission_result.permission_id == per.permission_id){
+                                    boolean = 'true';
+                                }
+                            })
+                            permission_result.isActive = JSON.parse(boolean);
+                            permission_data.push(permission_result);
+                        })
+                        console.log(permission_data);
+                        res.render('user-profile/edit-user-role-permission',{
+                            title: 'UPDATE USER ROLE PERMISSION',
+                            cookie,
+                            user: result[0],
+                            data,
+                            permissions: permission_data
+                        });
+                    });
+                })
+            });
+        });
+    });
+}
+
+
+
+
+
+
+let sql_query = `SELECT * FROM user_role_permission CROSS JOIN permissions`;
+// let sql = `SELECT user_role_permission.permission_id, permissions.permission_id, permissions.permission FROM user_role_permission FULL OUTER JOIN permissions ON user_role_permission.permission_id=permissions.permission_id ORDER BY user_role_permission.permission_id`;
+conn.query(sql, function(err, permission_result) {
+    if(err) throw err;
+    var data = [];
+    var boolean = 'false';
+    permission_result.forEach(per_result=>{
+        if(per_result.user_id == user_id) {
+            boolean = true;
+            console.log(per_result);
+        }
+        per_result.isActive = JSON.parse(boolean);
+        data.push(per_result);
+        boolean = 'false';
+    })
+    console.log(data);
+})
+
+
+const editUserPermissionRoutes = async (req, res) => {
+    var cookie = '';
+    if(req.cookies.jwt_token){
+        cookie  = req.headers.cookie.split(' ')[0].split('=')[1].replace(";", "");
+    }
+    const user_id = req.params.id;
+    var roles_data = [];
+    var permission_result = [];
+    var data = [];
+    var per_data = [];
+    var permissionData = [];
+    var rolesData = [];
+    var userData = [];
+    var boolean = 'false';
+    var boolean_var = 'false';
+    // var sql = `SELECT user_role_permission.user_id, user_role_permission.role_id, permissions.permission_id, permissions.permission,
+    // user_role_permission.permission_id FROM user_role_permission LEFT JOIN permissions ON user_role_permission.permission_id = permissions.permission_id WHERE user_role_permission.user_id = '${user_id}'`;
+    let sql = `SELECT * FROM roles CROSS JOIN permissions`;
+    // let sql = `SELECT user_role_permission.permission_id, permissions.permission_id, permissions.permission FROM user_role_permission FULL OUTER JOIN permissions ON user_role_permission.permission_id=permissions.permission_id ORDER BY user_role_permission.permission_id`;
+    conn.query(sql, function(err, results) {
+        if(err) throw err;
+        roles_data = results;
+        var selected_role = `SELECT role_id FROM user_permission WHERE user_id = '${user_id}'`;
+        conn.query(selected_role, function(err, role_results){
+            if(err) throw err;
+            const selected_role_result = role_results;
+            // console.log(roles_data);
+            // console.log(selected_role_result);
+            roles_data.forEach(roles=>{
+                boolean = 'false';
+                selected_role_result.forEach(selected_role=>{
+                    // console.log(roles.role_id, selected_role.role_id);
+                    if(roles.role_id == selected_role.role_id){
+                        boolean = 'true';
+                    }
+                })
+                roles.isActive = JSON.parse(boolean);
+                data.push(roles);
+            })
+            var selected_permissions = `SELECT * FROM user_role_permission WHERE user_id = '${user_id}'`;
+            conn.query(selected_permissions, function(err, permission_res){
+                if(err) throw err;
+                permission_result = permission_res;
+                // console.log(data);
+                // console.log(permission_result);
+                data.forEach(d=>{
+                    boolean_var = 'false';
+                    permission_result.forEach(per=>{
+                        if(d.isActive){
+                            if(d.permission_id == per.permission_id){
+                                boolean_var = 'true';
+                            }
+                        }
+                    })
+                    d.isActiveval = JSON.parse(boolean_var);
+                    per_data.push(d);
+                    
+                    console.log("per_data" , per_data);
+                    // let user_sql = `SELECT users.id, roles.role_id, roles.role_name, users.name, users.email, users.password FROM users LEFT JOIN roles ON users.role = roles.role_id WHERE id = ${user_id}`;
+                    // conn.query(user_sql, async function(err, user_result) {
+                    //     if(err) throw err;
+                    //     userData.push(user_result);
+                    //     let role_sql = `SELECT * FROM roles`;
+                    //     conn.query(role_sql, function(err, role_result){
+                    //         if(err) throw err;
+                    //         rolesData.push(role_result);
+                    //         let permission_sql = `SELECT * FROM permissions`;
+                    //         conn.query(permission_sql, function(err, permission_result){
+                    //             if(err) throw err;
+                    //             permissionData.push(permission_result);
+                    //             console.log(permission_result);
+                    //             res.render('user-profile/edit-user-role-permission',{
+                    //                 title: 'UPDATE USER ROLE PERMISSION',
+                    //                 cookie,
+                    //                 per_data,
+                    //                 userData,
+                    //                 rolesData,
+                    //                 permissionData
+                    //             });
+                    //         });
+                    //     })
+                    // });
+                })
+            })
+        })
+    })
+    // let roles_sql = `SELECT * FROM roles`;
+    // conn.query(roles_sql, function(err, roles_results) {
+    //     if(err) throw err;
+    //     roles_data = roles_results;
+    //     let permission_sql = `SELECT * FROM permissions`;
+    //     conn.query(permission_sql, function(err, permission_results) {
+    //         if(err) throw err;
+    //         permissions_data = permission_results;
+    //         let user_permission_sql = `SELECT permission_id FROM user_role_permission WHERE user_id = '${user_id}'`;
+    //         conn.query(user_permission_sql, function(err, user_permissions_result) {
+    //             if(err) throw err;
+    //             // console.log(user_permissions_result);
+    //             // console.log(roles_data);
+    //             // console.log(permissions_data);
+    //             var user_permission_data = [];
+    //             var users_result =[];
+    //             var permission_data = [];
+    //             let boolean = 'false';
+    //             let role_sql = `SELECT role_id FROM user_role_permission WHERE user_id = '${user_id}'`;
+    //             conn.query(role_sql, function(err, result){
+    //                 if(err) throw err;
+    //                 result.forEach(role=>{
+    //                     var sql = `SELECT * FROM user_role_permission WHERE role_id = '${role.role_id}' and user_id = '${user_id}'`;
+    //                     conn.query(sql, function(err, result) {
+    //                         if(err) throw(err);
+    //                         user_permission_data.push(result);
+    //                         var role = [];
+    //                         let role_boolean = 'false';
+    //                         roles_data.forEach(role=>{
+    //                             role_boolean = 'false';
+    //                             permissions_data.forEach(permission=>{
+    //                                 boolean = 'false';
+    //                                 user_permissions_result.forEach(user_permission=>{
+    //                                     if(permission.permission_id == user_permission.permission_id){
+    //                                         boolean = 'true';
+    //                                     }
+    //                                 })
+    //                                 permission.isActive = JSON.parse(boolean);
+    //                                 permission_data.push(permission);
+    //                             })
+    //                         })
+    //                         let users_sql = `SELECT users.id, roles.role_id, roles.role_name, users.name, users.email, users.password FROM users LEFT JOIN roles ON users.role = roles.role_id WHERE id = ${user_id}`;
+    //                         conn.query(users_sql, function(err, users_result){
+    //                             if(err) throw err;
+    //                             users_result = users_result;
+    //                             // console.log(user_permission_data);
+    //                             // console.log(users_result);
+    //                             // console.log(user_permission_data);
+    //                         })
+    //                         // console.log(user_permission_data);
+    //                     })
+    //                 })
+    //                 console.log(result);
+    //                 // console.log(permissions_data);
+    //                 // res.render('user-profile/edit-user-role-permission',{
+    //                 //     title: 'UPDATE USER ROLE PERMISSION',
+    //                 //     cookie,
+    //                 //     roles_data,
+    //                 //     permissions_data,
+    //                 //     user: users_result,
+    //                 //     userPermissions: result
+    //                 // });
+    //             });
+    //             console.log(permission_data);
+    //         });
+    //     });
+    // });
+}
+
+
+const sql = `SELECT permission_id FROM role_permission WHERE role_id = '${role_id}'`;
+            conn.query(sql, function(err, results) {
+                if(err) throw err;
+                var flag  = false;
+                console.log(results);
+                results.forEach(result => {
+                    permission_id = result.permission_id;
+                    console.log(permission_id);
+                    if(permission_id == 4) {
+                        flag = true
+                    }
+                });
+                if(flag) {
+                    next();
+                } else {
+                    res.status(404).json({message: "Access Denied"});
+                }
+            });
