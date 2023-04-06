@@ -75,7 +75,6 @@ const addCategories = (req, res) => {
                 if(error) {
                     console.log(error);
                 } else {
-                    // console.log(results);
                     // res.send('Category Added!');
                     console.log("Data inserted!");
                     res.redirect('/categories');
@@ -106,8 +105,6 @@ const getEditCategory = (req, res) => {
 };
 
 const updateCategories = (req, res) => {
-    // const id = req.params.id;
-    console.log(req.body);
     const body = JSON.parse(JSON.stringify(req.body));
     const id = body.id;
     const cat_image = body.cat_image;

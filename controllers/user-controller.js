@@ -58,11 +58,9 @@ const editUserRoleRoute = (req, res) => {
             let sql = `SELECT users.id, roles.role_name, users.name, users.email, users.password FROM users LEFT JOIN roles ON users.role = roles.role_id WHERE id = ${user_id}`;
             conn.query(sql, async function(err, result) {
                 if(err) throw err;
-                // console.log(results, result, user_roles);
                 var data = [];
                 let boolean = 'false';
                 results.forEach(res=>{
-                    // console.log(res);
                     boolean = 'false';
                     user_roles.forEach(resp=>{
                         if(resp.role_id == res.role_id){
@@ -165,7 +163,6 @@ const register = async (req, res) => {
                     console.log(error);
                 } else {
                     const user_id = results.insertId;
-                    console.log(user_id);
                     const read_permission = "4";
                     const data = {user_id: user_id, role_id: role, permission_id: read_permission};
                     const sql = 'INSERT INTO user_role_permission SET ?'
@@ -222,7 +219,6 @@ const login = async (req, res) => {
             if(!results || !(await bcrypt.compare(password, results[0].password))) {
                 res.send("Invalid credentials");
             } else {
-                console.log(body);
                 var getRole = `SELECT * FROM user_permission WHERE role_id = '${body.role_name}' and user_id = '${results[0].id}'`;
                 conn.query(getRole, function(err, role_result){
                     if(err) throw err;
@@ -283,7 +279,6 @@ const editUserRoute = async (req, res) => {
         let sql = `SELECT users.id, roles.role_name, users.name, users.email, users.password FROM users LEFT JOIN roles ON users.role = roles.role_id WHERE id = ${user_id}`;
         conn.query(sql, async function(err, result) {
             if(err) throw err;
-            console.log(result);
             res.render('user-profile/edit-user',{
                 title: 'UPDATE USER ROLE',
                 cookie,
@@ -328,7 +323,6 @@ const deleteUser = async (req, res) => {
         if(error) {
             console.log(error);
         }
-        // console.log(result);
         if(result.length > 0) {
             let sql = `DELETE FROM users WHERE id = ${id}`;
             let query = conn.query(sql, (err, result) => {
@@ -373,7 +367,6 @@ const editUserPermissionRoute = async (req, res) => {
         var allPermissions = `SELECT * FROM permissions`;
         conn.query(allPermissions, function(err , permissions){
             if (err) throw err;
-            // console.log('Permissions' , permissions);
             var allUserPermissions = `SELECT * FROM user_role_permission WHERE user_id = '${user_id}'`;
             conn.query(allUserPermissions , function(err , userPermissions){
                 if (err) throw err;
@@ -392,7 +385,6 @@ const editUserPermissionRoute = async (req, res) => {
                     permissions.forEach(permissions_object=>{
                         userPermission = 'false';
                         userPermissions.forEach(userP=>{
-                            // console.log(role_object , permissions_object , userPermission);
                             if(userP.role_id == role_object.role_id && userP.user_id == user_id && userP.permission_id == permissions_object.permission_id){
                                 userPermission = 'true';
                             }

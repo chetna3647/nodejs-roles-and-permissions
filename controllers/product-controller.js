@@ -6,7 +6,6 @@ const getProducts = (req, res) => {
     if(req.cookies.jwt_token){
         cookie  = req.headers.cookie.split(' ')[0].split('=')[1].replace(";", "");
     }
-    // var sql = 'SELECT * FROM products';
     var sql = 'SELECT products.product_id, categories.cat_name, products.product_name, products.product_wt, products.product_sku, products.collection_name, products.gross_wt, products.product_color, products.product_purity, products.product_mat_charge, products.huid_charges, products.certificate_charges, products.total_charges FROM products LEFT JOIN categories ON products.cat_id = categories.id';
     let query = conn.query(sql, function(err, results) {
         if(err) throw err;
@@ -79,8 +78,6 @@ const addProducts = (req, res) => {
                     if(error) {
                         console.log(error);
                     } else {
-                        // console.log(results);
-                        // res.send('Product Added!');
                         console.log("Data inserted!");
                         res.redirect('/products');
                     }
@@ -100,12 +97,10 @@ const updateProductRoute = (req, res) => {
     let sql_cat_name = 'SELECT cat_name FROM categories';
     conn.query(sql_cat_name, function(err, results) {
         if(err) throw err;
-        // console.log(results);
         var cat_names = results;
         let sql = `SELECT products.product_id, categories.cat_name, products.product_name, products.product_wt, products.product_sku, products.collection_name, products.gross_wt, products.product_color, products.product_purity, products.product_mat_charge, products.huid_charges, products.certificate_charges, products.total_charges FROM products LEFT JOIN categories ON products.cat_id = categories.id WHERE product_id = ${product_id}`;
         let query = conn.query(sql, (err, results) => {
             if(err) throw err;
-            // console.log(results);
             res.render('products/update-product-view',{
                 title: 'UPDATE PRODUCT',
                 cookie,
