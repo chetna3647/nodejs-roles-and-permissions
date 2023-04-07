@@ -32,8 +32,13 @@
             </nav><br><br>
             <br><br><h2><%= title %></h2>
             <div class="row">
+                <div class="card col-lg-4 col-md-6">
+                <% product_images.forEach(function(image) { %>
+                    <div>
+                        <img src="http://localhost:5000/images/<%= image.product_image %>" alt="Image">
+                    </div>
+                <% }); %>
                 <% products.forEach(function(product){ %>
-                  <div class="card col-lg-4 col-md-6">
                     <h6>Product ID : <%= product.product_id %></h6>
                     <h6>Category Name : <%= product.cat_name %></h6>
                     <h6>Product Weight : <%= product.product_wt %></h6>
@@ -51,8 +56,8 @@
                         <a href="/products/edit-product/<%= product.product_id %>" class="btn btn-sm btn-primary">Edit</a><br>
                         <a href="/products/delete-product/<%= product.product_id %>" class="btn btn-sm btn-danger">Delete</a><br>
                     <% } %>
-                 </div>
-                <% }) %>
+                    <% }) %>
+                </div>
             </div>
         </div>
     </body>

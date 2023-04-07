@@ -35,7 +35,8 @@
                 <thead>
                     <tr>
                         <th>Product ID</th>
-                        <th>Category ID</th>
+                        <th>Product Images</th>
+                        <th>Category Name</th>
                         <th>Product Weight</th>
                         <th>Product Name</th>
                         <th>Product SKU</th>
@@ -50,9 +51,14 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <% products.forEach(function(product) { %>
+                    <% totalProduct.forEach(function(product) { %>
                         <tr>
                             <td><a href="/products/<%= product.product_id %>"><%= product.product_id %></a></td>
+                            <td>
+                                <% product.product_images.forEach(function(image) { %>
+                                    <a href="http://localhost:5000/images/<%= image.product_image %>" target="_blank">Images</a>
+                                <% }); %>
+                            </td>
                             <td><%= product.cat_name %></td>
                             <td><%= product.product_wt %></td>
                             <td><%= product.product_name %></td>

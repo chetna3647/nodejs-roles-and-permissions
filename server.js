@@ -31,8 +31,13 @@ app.use(express.urlencoded({ extended: false }));  // parse application/x-www-fo
 app.use(express.json());
 app.use(cookieparser());
 
+//Configuration for Multer
+const upload = multer({ dest: "public/images" });
+module.exports = upload;
+
 //use express static folder
-app.use(express.static('./public'));
+app.use(express.static('public')); 
+app.use('/images', express.static('images'));
 
 //set view fle
 app.set('views', path.join(__dirname, 'views'));

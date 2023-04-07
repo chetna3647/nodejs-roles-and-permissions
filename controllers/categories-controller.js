@@ -1,6 +1,21 @@
 const cookieParser = require('cookie-parser');
 const { cookie } = require('express-validator');
 const conn = require('../dbConnection');
+const multer = require('multer');
+
+//Configuration for Multer
+const multerStorage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, './public/images');
+    },
+    filename: (req, file, cb) => {
+        const ext = file.mimetype.split("/")[1];
+        cb(null, file.originalname);
+    },
+});
+
+//Calling the "multer" Function
+const upload = multer({ storage: multerStorage });
 
 //retrieve category
 const getCategories = (req, res) => {
@@ -11,9 +26,6 @@ const getCategories = (req, res) => {
     var sql = 'SELECT * FROM categories';
     let query = conn.query(sql, function(err, results) {
         if(err) throw err;
-        // res.send({
-        //     categories: results
-        // });
         res.render('categories/categories-view',{
             title: 'CATEGORIES',
             cookie,
@@ -29,7 +41,7 @@ const getCategoryById = (req, res) => {
         cookie  = req.headers.cookie.split(' ')[0].split('=')[1].replace(";", "");
     }
     id = req.params.id;
-    var sql = `SELECT * FROM categories WHERE id = ${id}`;
+    var sql = `SELECT * FROM categories WHERE id = '${id}'`;
     let query = conn.query(sql, function(err, results) {
         if(err) throw err;
         if(results.length > 0) {
@@ -58,28 +70,25 @@ const addCategoryRoute = (req, res) => {
 
 const addCategories = (req, res) => {
     const body = JSON.parse(JSON.stringify(req.body));
-    const cat_image = body.cat_image;
+    const files = req.file;
     const cat_name = body.cat_name;
     // const { cat_image, cat_name} = req.body;
     conn.query('SELECT cat_name FROM categories WHERE cat_name = ?', [cat_name], async (error, result) => {
         if(error) {
             console.log(error);
         }
-
-        if(result.length > 0) {
-            return res.send('That category is already exist');
-        } else {
-            const categoryData = { cat_image: cat_image, cat_name: cat_name };
-            const sql = 'INSERT INTO categories SET ?'
-            conn.query(sql, categoryData, (error, results) => {
-                if(error) {
-                    console.log(error);
-                } else {
-                    // res.send('Category Added!');
-                    console.log("Data inserted!");
-                    res.redirect('/categories');
-                }
+        if(result) {
+            if (!files) {
+                return res.status(400).send({ message: 'Please upload a file.' });
+            }
+            var sql = "INSERT INTO categories (cat_image, cat_name) VALUES ('" + files.originalname + "', '"+cat_name+"')";
+            var query = conn.query(sql, function(err, result) {
+                if(err) throw err;
+                console.log("Category added");
             });
+            res.redirect('/categories');
+        } else {
+            return res.send('That category is already exist');
         }
     });
 };
@@ -92,7 +101,7 @@ const getEditCategory = (req, res) => {
     }
 
     let id = req.params.id;
-    let sql = `SELECT * FROM categories WHERE id = ${id}`;
+    let sql = `SELECT * FROM categories WHERE id = '${id}'`;
     let query = conn.query(sql, (err, result) => {
         if(err) throw err;
         // res.send({user: result[0]});
@@ -107,13 +116,12 @@ const getEditCategory = (req, res) => {
 const updateCategories = (req, res) => {
     const body = JSON.parse(JSON.stringify(req.body));
     const id = body.id;
-    const cat_image = body.cat_image;
     const cat_name = body.cat_name;
-    var sql = `SELECT * FROM categories WHERE id = ${id}`;
+    var sql = `SELECT * FROM categories WHERE id = '${id}'`;
     conn.query(sql, function(err, results) {
         if(err) throw err;
         if(results.length > 0) {
-            let updatesql = `UPDATE categories SET cat_image = '${cat_image}', cat_name = '${cat_name}' WHERE id = ${id}`;
+            let updatesql = `UPDATE categories SET cat_image = '${req.file.originalname}', cat_name = '${cat_name}' WHERE id = ${id}`;
             let query = conn.query(updatesql, (err, result) => {
                 if(err) throw err;
                 console.log("Data updated!");

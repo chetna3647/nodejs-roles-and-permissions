@@ -35,7 +35,7 @@
                 <% categories.forEach(function(category){ %>
                   <div class="card col-lg-4 col-md-6">
                 
-                    <img alt="Image" style="width:100%" src="<%= category.cat_image %>">
+                    <img alt="Image" style="width:100%" src="/images/<%= category.cat_image %>">
                     <h6>Category ID : <%= category.id %></h6>
                     <h6>Category Name : <%= category.cat_name %></h6>
                     <% if(cookie){ %>

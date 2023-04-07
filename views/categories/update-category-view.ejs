@@ -31,11 +31,12 @@
                 </div>
             </nav><br><br>
             <br><br><h2><%= title %></h2>
-            <form action="/categories/category/update-category" method="post">
+            <form action="/categories/category/update-category" method="post" enctype="multipart/form-data">
                 <input type="hidden" value="<%= category.id %>" name="id">
                 <div class="form-group">
-                    <label for="cat-image">Category Image : </label>
-                    <input type="file" name="cat_image" id="cat_image" placeholder="Upload a file" value="<%= category.cat_image %>">
+                    <label for="category_image">Category Image : </label>
+                    <a href="http://localhost:5000/images/<%= category.cat_image %>" target="_blank">Category Image</a>
+                    <input type="file" name="category_image" id="category_image" placeholder="Upload a file" required>
                 </div>
                 <div class="form-group">
                     <label for="cat-name">Category Name : </label>

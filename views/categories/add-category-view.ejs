@@ -30,7 +30,7 @@
                 </div>
             </nav><br><br>
             <br><br><h2><%= title %></h2>
-            <form action="/categories/category/save-category" method="post">
+            <form action="/categories/category/save-category" method="post" enctype="multipart/form-data">
                 <div class="form-group">
                     <label for="cat_image">Category Image : </label>
                     <input type="file" name="cat_image" id="cat_image" placeholder="Upload a file" required>
@@ -40,6 +40,7 @@
                     <label for="cat-name">Category Name : </label>
                     <input type="text" class="form-control" id="cat_name" placeholder="Enter category name" name="cat_name" required>
                 </div>
+
                 <button type="submit" class="btn btn-primary">Submit</button>
             </form>
         </div>

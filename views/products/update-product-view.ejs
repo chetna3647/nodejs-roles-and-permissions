@@ -31,8 +31,17 @@
                 </div>
             </nav><br><br>
             <br><br><h2><%= title %></h2>
-            <form action="/products/product/update-product" method="post">
+            <form action="/products/product/update-product" method="post" enctype="multipart/form-data">
                 <input type="hidden" value="<%= product.product_id %>" name="product_id">
+                <div class="form-group">
+                    <label for="product_images">Product Images : </label>
+                    <% product_images.forEach(function(image) { %>
+                        <div>
+                            <a href="http://localhost:5000/images/<%= image.product_image %>" target="_blank">Images</a>
+                        </div>
+                    <% }); %>
+                    <input type="file" name="product_image" id="product_image" multiple placeholder="Upload file" required>
+                </div>
                 <div class="form-group">
                     <label for="cat_name">Category Name : </label>
                     <select name="cat_name" class="form-control">
