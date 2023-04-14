@@ -22,6 +22,7 @@ const router = express.Router();
 
 router.get('/', productController.getProducts);
 router.get('/:id', productController.getProductsById);
+router.get('/product/add-to-cart/:id', productController.addToCart);
 
 router.use(checkAuth);
 

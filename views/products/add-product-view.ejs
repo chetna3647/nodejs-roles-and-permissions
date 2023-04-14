@@ -17,6 +17,7 @@
                     <% if(cookie){ %>
                         <a href="/logout" class="navbar-brand">Logout</a>
                         <a href="/user-profile" class="navbar-brand">Profile</a>
+                        <a href="/fetch-order" class="navbar-brand">Order</a>
                     <% } else { %>
                         <a href="/login" class="navbar-brand">Login</a>
                     <% } %>
@@ -86,6 +87,10 @@
                 <div class="form-group">
                     <label for="total_charges">Total Charges : </label>
                     <input type="text" class="form-control" id="total_charges" placeholder="Enter Total Charges" name="total_charges" required>
+                </div>
+                <div class="form-group">
+                    <label for="quantity">Total Quantity : </label>
+                    <input type="text" class="form-control" id="quantity" placeholder="Enter Total Quantity" name="quantity" required>
                 </div>
                 <button type="submit" class="btn btn-primary">Submit</button>
             </form>

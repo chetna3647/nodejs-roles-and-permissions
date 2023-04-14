@@ -10,7 +10,7 @@
 # dependencies
 /node_modules
 .env
-public
+public/images
 
 
 

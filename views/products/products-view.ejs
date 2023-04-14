@@ -17,20 +17,34 @@
                     <% if(cookie){ %>
                         <a href="/logout" class="navbar-brand">Logout</a>
                         <a href="/user-profile" class="navbar-brand">Profile</a>
+                        <a href="/fetch-order" class="navbar-brand">Order</a>
                     <% } else { %>
                         <a href="/login" class="navbar-brand">Login</a>
                     <% } %>
-                    <% if(cookie){ %><a href="/products/product/add-category" class="btn btn-sm btn-primary">Add Product</a><% } %>
+                    <% if(cookie && (role == 1 || role == 2)){ %><a href="/products/product/add-category" class="btn btn-sm btn-primary">Add Product</a><% } %>
                     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
                     <div class="collapse navbar-collapse" id="navbarResponsive">
                         <ul class="navbar-nav ms-auto">
                             <li class="nav-item"><a href="/categories" class="nav-link">Categories</a></li>
-                            <li class="nav-item"><a href="/products" class="nav-link">Products</a></li><br><br>
+                            <li class="nav-item"><a href="/products" class="nav-link">Products</a></li>
+                            <li class="nav-item"><a href="/user/cart" class="nav-link">Cart</a></li><br><br>
                         </ul>
                     </div>
                 </div>
             </nav><br><br>
             <br><br><h2><%= title %></h2>
+            <form action='/products' method="GET">
+                <label for="search"><b>Search</b></label>
+                <input type="text" name="search" id="search" placeholder="Search..."><br>
+                <label for="filter"><b>Filter By</b></label>
+                <select name="filter" class="filter">
+                    <option value="">Select Category</option>
+                    <% cat_names.forEach(function(cat_name) { %>
+                        <option id="filter" name="filter" value="<%= cat_name.id %>"><%= cat_name.cat_name %></option>
+                    <% }); %>
+                </select>
+                <button type="submit">Search</button>
+            </form><br>
             <table class="table table-dark table-striped">
                 <thead>
                     <tr>
@@ -71,7 +85,8 @@
                             <td><%= product.huid_charges %></td>
                             <td><%= product.certificate_charges %></td>
                             <td><%= product.total_charges %></td>
-                            <% if(cookie){ %>
+                            <td><a href="/products/product/add-to-cart/<%= product.product_id %>" class="btn btn-sm btn-primary">Add to cart</a><br></td>
+                            <% if(cookie && role == 1){ %>
                                 <td>
                                     <a href="/products/edit-product/<%= product.product_id %>" class="btn btn-sm btn-primary">Edit</a>
                                     <a href="/products/delete-product/<%= product.product_id %>" class="btn btn-sm btn-danger">Delete</a>

@@ -7,8 +7,13 @@ const router = express.Router();
 
 //get user
 router.get('/', userController.homePage);
-
 router.get('/user-profile', userController.userProfile);
+router.get('/user/cart', userController.cart);
+router.get('/product/remove/:id', userController.removeProductFromCart);
+router.get('/user/checkout', userController.userOrderCheckout);
+router.post('/user/order', userController.order);
+router.get('/fetch-order', userController.fetchOrders);
+router.post('/payment/verify', userController.paymentVerify);
 
 //signup route
 router.get('/signup', userController.signupRoute);
@@ -34,6 +39,13 @@ router.post('/save-user', userController.editUser);
 
 //delete user route
 router.get('/users/delete-user/:id', permissions.deletePermissions, userController.deleteUser);
+
+//forgot password
+router.get('/user/forgot-password', userController.forgotPassword);
+router.get('/user/otp-verification', userController.getOtpVerification);
+router.get('/user/otp-verify', userController.otpVerification);
+
+router.get('/verification/:code', userController.verificationMail);
 
 router.get('/logout', userController.logout);
 

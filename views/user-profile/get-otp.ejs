@@ -1,0 +1,51 @@
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
+<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet">
+<div class="form-gap"></div>
+<div class="container">
+    <div class="row">
+        <div class="col-md-4 col-md-offset-4">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <div class="text-center">
+                        <h3><i class="fa fa-lock fa-4x"></i></h3>
+                        <h2 class="text-center">Forgot Password?</h2>
+                        <p>You can reset your password here.</p>
+                        <div class="panel-body">
+
+                            <form id="otp-verification" role="form" autocomplete="off" class="form" method="GET"
+                                action="/user/otp-verify">
+                                <div class="form-group">
+                                    <div class="input-group">
+                                        <input type="hidden" name="email" id="email" value="<%= userData.email %>">
+                                        <span class="input-group-addon"><i
+                                                class="glyphicon glyphicon-envelope color-blue"></i></span>
+                                        <input id="otp" name="otp" placeholder="Enter OTP" class="form-control"
+                                            type="text">
+                                    </div>
+                                </div>
+                                <!-- Password input -->
+                                <div class="input-group">
+                                    <div class="form-outline mb-3">
+                                        <label class="form-label" for="form3Example4">Password</label>
+                                        <input type="password" id="form3Example4" name="password"
+                                            class="form-control" placeholder="Enter password" />
+                                    </div>
+                                </div>
+                                <!-- Password input -->
+                                <div class="input-group">
+                                    <div class="form-outline mb-3">
+                                        <label class="form-label" for="form3Example4">Confirm Password</label>
+                                        <input type="password" id="form3Example4" name="confirmpass"
+                                            class="form-control" placeholder="Enter confirm password" />
+                                    </div>
+                                </div>
+                                <button type="submit">Verify OTP</button>
+                            </form>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

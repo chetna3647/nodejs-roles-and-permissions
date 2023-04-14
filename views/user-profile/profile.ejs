@@ -16,6 +16,7 @@
                 <% if(cookie){ %>
                     <a href="/logout" class="navbar-brand">Logout</a>
                     <a href="/user-profile" class="navbar-brand">Profile</a>
+                    <a href="/fetch-order" class="navbar-brand">Order</a>
                 <% } else { %>
                     <a href="/signup" class="navbar-brand">Sign Up</a>
                 <% } %>
@@ -23,7 +24,8 @@
                 <div class="collapse navbar-collapse" id="navbarResponsive">
                     <ul class="navbar-nav ms-auto">
                         <li class="nav-item"><a href="/categories" class="nav-link">Categories</a></li>
-                        <li class="nav-item"><a href="/products" class="nav-link">Products</a></li><br><br>
+                        <li class="nav-item"><a href="/products" class="nav-link">Products</a></li>
+                        <li class="nav-item"><a href="/user/cart" class="nav-link">Cart</a></li><br><br>
                     </ul>
                 </div>
             </div>

@@ -21,7 +21,7 @@
                     <% } else { %>
                         <a href="/login" class="navbar-brand">Login</a>
                     <% } %>
-                    <% if(cookie){ %><a href="/products/product/add-category" class="btn btn-sm btn-primary">Add Product</a><% } %>
+                    <% if(cookie && (role == 1 || role == 2)){ %><a href="/products/product/add-category" class="btn btn-sm btn-primary">Add Product</a><% } %>
                     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
                     <div class="collapse navbar-collapse" id="navbarResponsive">
                         <ul class="navbar-nav ms-auto">
@@ -34,32 +34,33 @@
             </nav><br><br>
             <br><br><h2><%= title %></h2>
             <div class="row">
-                <div class="card col-lg-4 col-md-6">
-                <% product_images.forEach(function(image) { %>
-                    <div>
-                        <img src="http://localhost:5000/images/<%= image.product_image %>" alt="Image">
-                    </div>
-                <% }); %>
-                <% products.forEach(function(product){ %>
-                    <h6>Product ID : <%= product.product_id %></h6>
-                    <h6>Category Name : <%= product.cat_name %></h6>
-                    <h6>Product Weight : <%= product.product_wt %></h6>
-                    <h6>Product Name : <%= product.product_name %></h6>
-                    <h6>Product SKU : <%= product.product_sku %></h6>
-                    <h6>Collection Name : <%= product.collection_name %></h6>
-                    <h6>Gross Weight : <%= product.gross_wt %></h6>
-                    <h6>Product Color : <%= product.product_color %></h6>
-                    <h6>Product Purity : <%= product.product_purity %></h6>
-                    <h6>Product Material Charges : <%= product.product_mat_charge %></h6>
-                    <h6>Huid Charges : <%= product.huid_charges %></h6>
-                    <h6>Certificate Charges : <%= product.certificate_charges %></h6>
-                    <h6>Total Charges : <%= product.total_charges %></h6>
-                    <% if(cookie){ %>
+            <% totalProduct.forEach(function(product){ %>
+                <div class="card col-lg-6">
+                    <h6>
+                        <% product.product_images.forEach(function(image) { %>
+                            <img src="http://localhost:5000/images/<%= image.product_image %>" alt="Image">
+                        <% }); %>
+                    </h6>
+                    <h6><b>Product ID :</b> <%= product.product_id %></h6>
+                    <h6><b>Category Name :</b> <%= product.cat_name %></h6>
+                    <h6><b>Product Weight :</b> <%= product.product_wt %></h6>
+                    <h6><b>Product Name :</b> <%= product.product_name %></h6>
+                    <h6><b>Product SKU :</b> <%= product.product_sku %></h6>
+                    <h6><b>Collection Name :</b> <%= product.collection_name %></h6>
+                    <h6><b>Gross Weight :</b> <%= product.gross_wt %></h6>
+                    <h6><b>Product Color :</b> <%= product.product_color %></h6>
+                    <h6><b>Product Purity :</b> <%= product.product_purity %></h6>
+                    <h6><b>Product Material Charges :</b> <%= product.product_mat_charge %></h6>
+                    <h6><b>Huid Charges :</b> <%= product.huid_charges %></h6>
+                    <h6><b>Certificate Charges :</b> <%= product.certificate_charges %></h6>
+                    <h6><b>Total Charges :</b> <%= product.total_charges %></h6>
+                    <a href="/products/product/add-to-cart/<%= product.product_id %>" class="btn btn-sm btn-primary">Add to cart</a><br>
+                    <% if(cookie && role == 1){ %>
                         <a href="/products/edit-product/<%= product.product_id %>" class="btn btn-sm btn-primary">Edit</a><br>
                         <a href="/products/delete-product/<%= product.product_id %>" class="btn btn-sm btn-danger">Delete</a><br>
                     <% } %>
-                    <% }) %>
                 </div>
+                <% }) %>
             </div>
         </div>
     </body>

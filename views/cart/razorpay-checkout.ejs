@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Payment</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <link href="https://fonts.googleapis.com/css?family=Montserrat" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="/css/style.css" />
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+</head>
+
+<body>
+    <input type="hidden" name="orderid" id="order_id" value="<%= orderId %>">
+    <input type="hidden" name="orderAmount" id="orderAmount" value="<%= orderAmount %>">
+    <button id="rzp-button1">Pay</button>
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <script>
+        var orderid = document.getElementById("order_id").value;
+        var orderAmount = document.getElementById("orderAmount").value;
+        var options = {
+            "key": "rzp_test_5R3ifzCtFSn1j1", // Enter the Key ID generated from the Dashboard
+            "amount": orderAmount, // Amount is in currency subunits. Default currency is INR. Hence, 50000 refers to 50000 paise
+            "currency": "INR",
+            "name": "Chetna Khatri", //your business name
+            "description": "Test Transaction",
+            "order_id": orderid, //This is a sample Order ID. Pass the `id` obtained in the response of Step 1
+            "callback_url": "https://eneqd3r9zrjok.x.pipedream.net/",
+            "handler": function (response){
+                alert("Payment successful");
+                var settings = {
+                    "url": "/payment/verify",
+                    "method": "POST",
+                    "timeout": 0,
+                    "headers": {
+                        "Content-Type": "application/json"
+                    },
+                    "data": JSON.stringify({response}),
+                }
+                $.ajax(settings).done(function(response){
+                    location.href = "http://127.0.0.1:5000/fetch-order";
+                    // alert(JSON.stringify(response));
+                });
+            },
+        };
+        
+        var razorpayObject = new Razorpay(options);
+        document.getElementById('rzp-button1').onclick = function(e){
+            razorpayObject.open();
+            e.preventDefault();
+        }
+    </script>
+</body>
+<script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+</body>
+
+</html>

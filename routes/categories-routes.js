@@ -23,8 +23,13 @@ const upload = multer({ storage: multerStorage });
 const router = express.Router();
 
 //get categories
-router.get('/', permissions.readPermissions, categoriesController.getCategories);
+router.get('/', categoriesController.getCategories);
 router.get('/:id', categoriesController.getCategoryById);
+
+// router.get('/', permissions.readPermissions, categoriesController.searchCategory);
+// router.post('/search', permissions.readPermissions, categoriesController.searchCategorypost);
+
+router.get('/products/:id', categoriesController.getProductsByCategory);
 
 router.use(checkAuth);
 

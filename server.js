@@ -38,6 +38,7 @@ module.exports = upload;
 //use express static folder
 app.use(express.static('public')); 
 app.use('/images', express.static('images'));
+app.use('/css', express.static('css'));
 
 //set view fle
 app.set('views', path.join(__dirname, 'views'));
