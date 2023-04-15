@@ -49,8 +49,8 @@
                         <h3 class="title">Checkout</h3>
                         <% products.forEach(function(product) { %>
                             <div class="item">
-                                <input type="hidden" name="product_id" value="<%= product.product_id %>-<%= product.cat_id %>-<%= product.product_qt %>">
-                                <span class="price" name="product_charge">RS<%= product.total_charges %> * <%= product.product_qt %></span>
+                                <input type="hidden" name="product_id" value="<%= product.product_id %>-<%= product.cat_id %>-<%= product.product_qt %>-<%= product.product_charges %>">
+                                <span class="price" name="product_charge">RS<%= product.product_charges %> * <%= product.product_qt %></span>
                                 <p class="item-name" name="product_name"><%= product.product_name %></p>
                                 <p class="item-description" name="cat_name"><%= product.cat_name %></p>
                             </div>
@@ -60,7 +60,7 @@
                     <div class="card-details">
                         <% products.forEach(function(product) { %>
                             <div class="item">
-                                <input type="hidden" class="item-name" name="product_details" value="<%= product.product_name %>-<%= product.cat_name %>-RS<%= product.total_charges %>-<%= product.product_qt %>">
+                                <input type="hidden" class="item-name" name="product_details" value="<%= product.product_name %>-<%= product.cat_name %>-RS-<%= product.total_charges %>-<%= product.product_qt %>">
                             </div>
                         <% }); %>
                         <input type="hidden" name="total_charge" class="total_charge" value="<%= total_charge %>">

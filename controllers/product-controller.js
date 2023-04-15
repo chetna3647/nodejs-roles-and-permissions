@@ -30,7 +30,7 @@ const getProducts = (req, res) => {
         var sql = `SELECT products.product_id, categories.cat_name, products.product_name, products.product_wt,
          products.product_sku, products.collection_name, products.gross_wt, products.product_color, 
          products.product_purity, products.product_mat_charge, products.huid_charges, 
-         products.certificate_charges, products.total_charges FROM products LEFT JOIN 
+         products.certificate_charges, products.total_charges, products.quantity FROM products LEFT JOIN 
          categories ON products.cat_id = categories.id WHERE products.cat_id = '${req.query.filter}'`;
         let query = conn.query(sql, function (err, results) {
             if (err) throw err;
@@ -55,7 +55,8 @@ const getProducts = (req, res) => {
                         product_mat_charge: result.product_mat_charge,
                         huid_charges: result.huid_charges,
                         certificate_charges: result.certificate_charges,
-                        total_charges: result.total_charges
+                        total_charges: result.total_charges,
+                        quantity: result.quantity
                     }
                     images.forEach(image => {
                         if (productData.product_id == image.product_id) {
@@ -84,9 +85,9 @@ const getProducts = (req, res) => {
         var sql = `SELECT products.product_id, categories.cat_name, products.product_name, products.product_wt,
          products.product_sku, products.collection_name, products.gross_wt, products.product_color, 
          products.product_purity, products.product_mat_charge, products.huid_charges, 
-         products.certificate_charges, products.total_charges FROM products LEFT JOIN 
+         products.certificate_charges, products.total_charges, products.quantity FROM products LEFT JOIN 
          categories ON products.cat_id = categories.id WHERE products.cat_id = '${req.query.filter}' 
-         OR products.product_name LIKE '%${req.query.search}'OR products.product_id LIKE '%${req.query.search}%' OR 
+         OR products.product_name LIKE '%${req.query.search}%' OR products.product_id LIKE '%${req.query.search}%' OR 
          categories.cat_name LIKE '%${req.query.search}%' OR products.product_sku LIKE '%${req.query.search}%' OR 
          products.product_color LIKE '%${req.query.search}%' OR products.product_purity LIKE '%${req.query.search}%'`;
         let query = conn.query(sql, function (err, results) {
@@ -112,7 +113,8 @@ const getProducts = (req, res) => {
                         product_mat_charge: result.product_mat_charge,
                         huid_charges: result.huid_charges,
                         certificate_charges: result.certificate_charges,
-                        total_charges: result.total_charges
+                        total_charges: result.total_charges,
+                        quantity: result.quantity
                     }
                     images.forEach(image => {
                         if (productData.product_id == image.product_id) {
@@ -142,7 +144,7 @@ const getProducts = (req, res) => {
         var sql = `SELECT products.product_id, categories.cat_name, products.product_name, products.product_wt, 
         products.product_sku, products.collection_name, products.gross_wt, products.product_color, 
         products.product_purity, products.product_mat_charge, products.huid_charges, products.certificate_charges,
-        products.total_charges FROM products LEFT JOIN categories ON products.cat_id = categories.id`;
+        products.total_charges, products.quantity FROM products LEFT JOIN categories ON products.cat_id = categories.id`;
         let query = conn.query(sql, function (err, results) {
             if (err) throw err;
             var product_sql = `SELECT * FROM product_images`;
@@ -166,7 +168,8 @@ const getProducts = (req, res) => {
                         product_mat_charge: result.product_mat_charge,
                         huid_charges: result.huid_charges,
                         certificate_charges: result.certificate_charges,
-                        total_charges: result.total_charges
+                        total_charges: result.total_charges,
+                        quantity: result.quantity
                     }
                     images.forEach(image => {
                         if (productData.product_id == image.product_id) {
@@ -197,7 +200,7 @@ const getProducts = (req, res) => {
         products.product_wt, products.product_sku, products.collection_name, 
         products.gross_wt, products.product_color, products.product_purity, 
         products.product_mat_charge, products.huid_charges, products.certificate_charges, 
-        products.total_charges FROM products LEFT JOIN categories ON products.cat_id = categories.id 
+        products.total_charges, products.quantity FROM products LEFT JOIN categories ON products.cat_id = categories.id 
         WHERE products.product_name LIKE '%${search_key}%' OR products.product_id LIKE '%${search_key}%' OR 
         categories.cat_name LIKE '%${search_key}%' OR products.product_sku LIKE '%${search_key}%' OR 
         products.product_color LIKE '%${search_key}%' OR products.product_purity LIKE '%${search_key}%' 
@@ -225,7 +228,8 @@ const getProducts = (req, res) => {
                             product_mat_charge: result.product_mat_charge,
                             huid_charges: result.huid_charges,
                             certificate_charges: result.certificate_charges,
-                            total_charges: result.total_charges
+                            total_charges: result.total_charges,
+                            quantity: result.quantity
                         }
                         images.forEach(image => {
                             if (productData.product_id == image.product_id) {
@@ -456,70 +460,74 @@ const addToCart = (req, res) => {
     var sql = `SELECT * FROM products WHERE product_id = '${product_id}'`;
     conn.query(sql, function(err, result){
         if(err) throw err;
-        cat_id = JSON.stringify(result[0].cat_id);
-        var insertedData = `SELECT * FROM cart WHERE product_id = '${product_id}' and user_id = '${user_id}'`;
-        conn.query(insertedData, function(err, cartData){
-            if(err) throw err;
-            if(user_id) {
-                if(cartData.length == 0){
-                    cartData = {user_id: user_id, product_id: product_id, cat_id: cat_id, product_qt: '1'};
-                    const sql = 'INSERT INTO cart SET ?'
-                    conn.query(sql, cartData, (err, results) => {
-                        if (err) throw err;
-                        const path = '/categories/products/'+cat_id;
-                        res.redirect(path);
-                    });
+        if(result[0].quantity > 0){
+            cat_id = JSON.stringify(result[0].cat_id);
+            var insertedData = `SELECT * FROM cart WHERE product_id = '${product_id}' and user_id = '${user_id}'`;
+            conn.query(insertedData, function(err, cartData){
+                if(err) throw err;
+                if(user_id) {
+                    if(cartData.length == 0){
+                        cartData = {user_id: user_id, product_id: product_id, cat_id: cat_id, product_qt: '1'};
+                        const sql = 'INSERT INTO cart SET ?'
+                        conn.query(sql, cartData, (err, results) => {
+                            if (err) throw err;
+                            const path = '/categories/products/'+cat_id;
+                            res.redirect(path);
+                        });
+                    } else {
+                        const quantity = cartData[0].product_qt;
+                        cartData = {user_id: user_id, product_id: product_id, cat_id: cat_id, product_qt: quantity+1};
+                        const sql = `UPDATE cart SET ? WHERE product_id = '${product_id}' and user_id = '${user_id}'`;
+                        conn.query(sql, cartData, (err, results) => {
+                            if (err) throw err;
+                            const path = '/categories/products/'+cat_id;
+                            res.redirect(path);
+                        });
+                    }   
                 } else {
-                    const quantity = cartData[0].product_qt;
-                    cartData = {user_id: user_id, product_id: product_id, cat_id: cat_id, product_qt: quantity+1};
-                    const sql = `UPDATE cart SET ? WHERE product_id = '${product_id}' and user_id = '${user_id}'`;
-                    conn.query(sql, cartData, (err, results) => {
-                        if (err) throw err;
-                        const path = '/categories/products/'+cat_id;
-                        res.redirect(path);
-                    });
-                }   
-            } else {
-                var productId = req.cookies.productId;
-                var productIds = [];
-                var boolean = 'false';
-                if(productId) {
-                    boolean = 'false';
-                    try{
-                        productIds = JSON.parse(req.cookies.productId);
-                    } catch {
-                        productIds = req.cookies.productId;
-                    }
-                    productIds.forEach(productId => {
-                        if(productId.product_id == product_id){
-                            boolean = 'true';
-                            productId.product_qt =  productId.product_qt + 1;
+                    var productId = req.cookies.productId;
+                    var productIds = [];
+                    var boolean = 'false';
+                    if(productId) {
+                        boolean = 'false';
+                        try{
+                            productIds = JSON.parse(req.cookies.productId);
+                        } catch {
+                            productIds = req.cookies.productId;
                         }
-                    });
-
-                    if(boolean == 'false'){
+                        productIds.forEach(productId => {
+                            if(productId.product_id == product_id){
+                                boolean = 'true';
+                                productId.product_qt =  productId.product_qt + 1;
+                            }
+                        });
+    
+                        if(boolean == 'false'){
+                            var productDetail = {
+                                product_id : product_id,
+                                cat_id : cat_id,
+                                product_qt : 1
+                            }
+                        }
+                    } else {
                         var productDetail = {
                             product_id : product_id,
                             cat_id : cat_id,
                             product_qt : 1
                         }
                     }
-                } else {
-                    var productDetail = {
-                        product_id : product_id,
-                        cat_id : cat_id,
-                        product_qt : 1
+                    if(productDetail){
+                        productIds.push(productDetail);
                     }
+                    res.cookie("productId", JSON.stringify(productIds));
+    
+                    const path = '/categories/products/'+cat_id;
+                    res.redirect(path);
                 }
-                if(productDetail){
-                    productIds.push(productDetail);
-                }
-                res.cookie("productId", JSON.stringify(productIds));
-
-                const path = '/categories/products/'+cat_id;
-                res.redirect(path);
-            }
-        });
+            });
+        } else {
+            res.status(400).send('Product is out of stock');
+        }
     });
 }
 

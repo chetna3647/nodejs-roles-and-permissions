@@ -85,7 +85,11 @@
                             <td><%= product.huid_charges %></td>
                             <td><%= product.certificate_charges %></td>
                             <td><%= product.total_charges %></td>
-                            <td><a href="/products/product/add-to-cart/<%= product.product_id %>" class="btn btn-sm btn-primary">Add to cart</a><br></td>
+                            <% if(product.quantity > 0) { %>
+                                <td><a href="/products/product/add-to-cart/<%= product.product_id %>" class="btn btn-sm btn-primary">Add to cart</a><br></td>
+                            <% } else { %>
+                                <td>OUT OF STOCK</td>
+                            <% } %>
                             <% if(cookie && role == 1){ %>
                                 <td>
                                     <a href="/products/edit-product/<%= product.product_id %>" class="btn btn-sm btn-primary">Edit</a>

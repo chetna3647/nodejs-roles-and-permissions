@@ -895,6 +895,7 @@ const userOrderCheckout = async (req, res) => {
 
 const order = async (req, res) => {
     const body = JSON.parse(JSON.stringify(req.body));
+    console.log(body);
     const options = {
         amount: req.body.total_charge*100,
         currency: 'INR',
@@ -902,9 +903,7 @@ const order = async (req, res) => {
         payment_capture : true,
         notes: {
             orderType: "Pre",
-            product_details: JSON.stringify(body.product_id),
-            // cat_name: req.body.cat_name,
-            // product_qt: req.body.product_qt
+            product_details: JSON.stringify(body.product_id)
         } 
     }
     try {
@@ -946,12 +945,14 @@ const paymentVerify = async (req, res) => {
                             let array = [JSON.parse(orderDocument.notes.product_details)];
                             productDetails.push({
                                 productData : array,
-                                orderId: orderDocument.id
+                                orderId: orderDocument.id,
+                                product_price: orderDocument.notes.product_price
                             });
                         }else{
                             productDetails.push({
                                 productData : JSON.parse(orderDocument.notes.product_details),
-                                orderId: orderDocument.id
+                                orderId: orderDocument.id,
+                                product_price: orderDocument.notes.product_price
                             })
                         }
                     });
@@ -962,15 +963,30 @@ const paymentVerify = async (req, res) => {
                             var orderDetails = products.split('-');
                             var orderAvailable = `SELECT * FROM order_details WHERE product_id = '${orderDetails[0]}' AND 
                             cat_id = '${orderDetails[1]}' AND product_qt = '${orderDetails[2]}' AND user_id = '${userId}' 
-                            AND order_id = '${product.orderId}'`;
+                            AND order_id = '${product.orderId}' AND product_price = '${orderDetails[3]}'`;
                             conn.query(orderAvailable, function(err, result){
                                 if(err) throw err;
                                 if(result.length == 0){
-                                    var orderDetailsSql = `INSERT INTO order_details (product_id, cat_id, product_qt, user_id, order_id) 
-                                    VALUES ('${orderDetails[0]}','${orderDetails[1]}','${orderDetails[2]}','${userId}', '${product.orderId}')`;
+                                    var orderDetailsSql = `INSERT INTO order_details (product_id, cat_id, product_qt, user_id, order_id, product_price) 
+                                    VALUES ('${orderDetails[0]}','${orderDetails[1]}','${orderDetails[2]}','${userId}', '${product.orderId}', '${orderDetails[3]}')`;
                                     conn.query(orderDetailsSql, function(err, result){
                                         if(err) throw err;
                                         console.log("Order details added"); 
+                                    });
+                                    var product_sql =  `SELECT * FROM products WHERE product_id = '${orderDetails[0]}'`;
+                                    conn.query(product_sql, function(err, result){
+                                        if(err) throw err;
+                                        var order_product_quantity = result[0].quantity - orderDetails[2];
+                                        var update_product = `UPDATE products SET cat_id = '${result[0].cat_id}', product_wt = '${result[0].product_wt}', 
+                                            product_name = '${result[0].product_name}', product_sku = '${result[0].product_sku}', 
+                                            collection_name = '${result[0].collection_name}', gross_wt = '${result[0].gross_wt}', 
+                                            product_color = '${result[0].product_color}', product_purity = '${result[0].product_purity}', 
+                                            product_mat_charge = '${result[0].product_mat_charge}', huid_charges = '${result[0].huid_charges}', 
+                                            certificate_charges = '${result[0].certificate_charges}', total_charges = '${result[0].total_charges}', quantity = '${order_product_quantity}' WHERE product_id = '${orderDetails[0]}'`;
+                                        conn.query(update_product, function(err, result){
+                                            if(err) throw err;
+                                            console.log("Product Updated");
+                                        })
                                     })
                                 }
                             });
@@ -1032,9 +1048,9 @@ const fetchOrders = async (req, res) => {
                                     product_mat_charge: product.product_mat_charge,
                                     huid_charges: product.huid_charges,
                                     certificate_charges: product.certificate_charges,
-                                    product_charges: product.total_charges,
+                                    product_charges: order.product_price,
                                     product_qt: order.product_qt,
-                                    total_charges: order.product_qt*product.total_charges
+                                    total_charges: order.product_qt*order.product_price
                                 }
                                 images.forEach(image => {
                                     if (products.product_id == image.product_id) {
