@@ -895,7 +895,6 @@ const userOrderCheckout = async (req, res) => {
 
 const order = async (req, res) => {
     const body = JSON.parse(JSON.stringify(req.body));
-    console.log(body);
     const options = {
         amount: req.body.total_charge*100,
         currency: 'INR',
