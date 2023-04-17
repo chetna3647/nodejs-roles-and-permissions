@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title><%= title %></title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+</head>
+    <body>
+        <div class="container">
+            <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top" id="mainNav">
+                <div class="container px-4">
+                    <a class="navbar-brand" href="/">Users</a>
+                    <% if(cookie){ %>
+                        <a href="/logout" class="navbar-brand">Logout</a>
+                        <a href="/user-profile" class="navbar-brand">Profile</a>
+                        <a href="/fetch-order" class="navbar-brand">Order</a>
+                    <% } else { %>
+                        <a href="/login" class="navbar-brand">Login</a>
+                    <% } %>
+                    <% if(cookie){ %><a href="/products/product/add-category" class="btn btn-sm btn-primary">Add Product</a><% } %>
+                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
+                    <div class="collapse navbar-collapse" id="navbarResponsive">
+                        <ul class="navbar-nav ms-auto">
+                            <li class="nav-item"><a href="/categories" class="nav-link">Categories</a></li>
+                            <li class="nav-item"><a href="/products" class="nav-link">Products</a></li>
+                            <li class="nav-item"><a href="/user/cart" class="nav-link">Cart</a></li><br><br>
+                        </ul>
+                    </div>
+                </div>
+            </nav><br><br>
+            <br><br><h2><%= title %></h2>
+            <div class="row">
+                <% products.forEach(function(product){ %>
+                    <div class="card col-lg-4 col-md-6">
+                        <% product.product_images.forEach(function(image) { %>
+                            <div>
+                                <img src="http://localhost:5000/images/<%= image.product_image %>" alt="Image">
+                            </div>
+                        <% }); %>
+                        <h6>Product ID : <%= product.product_id %></h6>
+                        <h6>Order ID : <%= product.order_id %></h6>
+                        <h6>User ID : <%= product.user_id %></h6>
+                        <h6>Category Name : <%= product.cat_name %></h6>
+                        <h6>Product Name : <%= product.product_name %></h6>
+                        <h6>Product Color : <%= product.product_color %></h6>
+                        <h6>Total Charges : <%= product.total_charges %></h6>
+                        <h6>Status : <%= product.status %></h6>
+                        
+                        <% if(cookie && (product.status == 'return')){ %>
+                            <div>
+                                <a href="/approve-request?product_id=<%= product.product_id %>&order_id=<%= product.order_id %>&user_id=<%= product.user_id %>" class="btn btn-sm btn-primary">Approve</a>
+                                <a href="/reject_request?product_id=<%= product.product_id %>&order_id=<%= product.order_id %>&user_id=<%= product.user_id %>" class="btn btn-sm btn-danger">Reject</a><br><br>
+                            </div>
+                        <% } %>
+                    </div>
+                <% }) %>
+            </div>
+        </div>
+    </body>
+</html>

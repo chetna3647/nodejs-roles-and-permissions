@@ -14,6 +14,10 @@ router.get('/user/checkout', userController.userOrderCheckout);
 router.post('/user/order', userController.order);
 router.get('/fetch-order', userController.fetchOrders);
 router.post('/payment/verify', userController.paymentVerify);
+router.post('/return-order', userController.returnOrder);
+router.get('/return-orders-request', userController.returnOrderRequest);
+router.get('/approve-request', userController.approveRequest);
+router.get('/reject_request', userController.rejectRequest);
 
 //signup route
 router.get('/signup', userController.signupRoute);

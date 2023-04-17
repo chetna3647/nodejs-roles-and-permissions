@@ -65,6 +65,14 @@
                         <div class="text-right">
                             <strong>Total: <%= product.total_charges %></strong>
                         </div>
+                        <form action="/return-order" method="POST">
+                            <div class="text-right">
+                                <input type="hidden" name="productId" value="<%= product.product_id %>">
+                                <input type="hidden" name="orderId" value="<%= product.order_id %>">
+                                <button class="btn btn-success">Return</button>
+                                <!-- <a href="/return-order" type="button" class="btn btn-success">Return</a> -->
+                            </div>
+                        </form>
                     <% }); %>
                 </ul>
             </div>
