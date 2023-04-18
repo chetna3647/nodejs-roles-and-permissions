@@ -8,7 +8,7 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
-    </head>
+</head>
     <body>
         <div class="container">
             <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top" id="mainNav">
@@ -26,30 +26,44 @@
                         <a href="/return-orders-request" class="navbar-brand">Return orders</a>
                         <a href="/cancel-orders-request" class="navbar-brand">Cancel orders</a>
                     <% } %>
-                    <% if(cookie){ %><a href="/categories/category/add-category" class="navbar-brand">Add Categories</a><% } %>
+                    <% if(cookie){ %><a href="/products/product/add-category" class="btn btn-sm btn-primary">Add Product</a><% } %>
                     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
                     <div class="collapse navbar-collapse" id="navbarResponsive">
                         <ul class="navbar-nav ms-auto">
                             <li class="nav-item"><a href="/categories" class="nav-link">Categories</a></li>
-                            <li class="nav-item"><a href="/products" class="nav-link">Products</a></li><br><br>
+                            <li class="nav-item"><a href="/products" class="nav-link">Products</a></li>
+                            <li class="nav-item"><a href="/user/cart" class="nav-link">Cart</a></li><br><br>
                         </ul>
                     </div>
                 </div>
             </nav><br><br>
             <br><br><h2><%= title %></h2>
-            <form action="/categories/category/update-category" method="post" enctype="multipart/form-data">
-                <input type="hidden" value="<%= category.id %>" name="id">
-                <div class="form-group">
-                    <label for="category_image">Category Image : </label>
-                    <a href="http://localhost:5000/images/<%= category.cat_image %>" target="_blank">Category Image</a>
-                    <input type="file" name="category_image" id="category_image" placeholder="Upload a file" required>
-                </div>
-                <div class="form-group">
-                    <label for="cat-name">Category Name : </label>
-                    <input type="text" class="form-control" id="cat_name" placeholder="Enter category name" name="cat_name" value="<%= category.cat_name %>">
-                </div>
-                <button type="submit" class="btn btn-primary">Update</button>
-            </form>
+            <div class="row">
+                <% products.forEach(function(product){ %>
+                    <div class="card col-lg-4 col-md-6">
+                        <% product.product_images.forEach(function(image) { %>
+                            <div>
+                                <img src="http://localhost:5000/images/<%= image.product_image %>" alt="Image">
+                            </div>
+                        <% }); %>
+                        <h6>Product ID : <%= product.product_id %></h6>
+                        <h6>Order ID : <%= product.order_id %></h6>
+                        <h6>User ID : <%= product.user_id %></h6>
+                        <h6>Category Name : <%= product.cat_name %></h6>
+                        <h6>Product Name : <%= product.product_name %></h6>
+                        <h6>Product Color : <%= product.product_color %></h6>
+                        <h6>Total Charges : <%= product.total_charges %></h6>
+                        <h6>Status : <%= product.status %></h6>
+                        
+                        <% if(cookie && (product.status == 'cancel')){ %>
+                            <div>
+                                <a href="/approve-cancel-request?product_id=<%= product.product_id %>&order_id=<%= product.order_id %>&user_id=<%= product.user_id %>" class="btn btn-sm btn-primary">Approve</a>
+                                <a href="/reject-cancel-request?product_id=<%= product.product_id %>&order_id=<%= product.order_id %>&user_id=<%= product.user_id %>" class="btn btn-sm btn-danger">Reject</a><br><br>
+                            </div>
+                        <% } %>
+                    </div>
+                <% }) %>
+            </div>
         </div>
     </body>
 </html>

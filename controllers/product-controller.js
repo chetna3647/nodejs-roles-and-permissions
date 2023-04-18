@@ -276,6 +276,7 @@ const getProductsById = (req, res) => {
                 res.render('products/single-product', {
                     title: 'PRODUCT',
                     cookie,
+                    role: req.cookies.role,
                     products: results,
                     product_images
                 });
@@ -299,6 +300,7 @@ const addProductRoute = (req, res) => {
         res.render('products/add-product-view', {
             title: 'ADD PRODUCT',
             cookie,
+            role: req.cookies.role,
             cat_names
         });
     });
@@ -368,6 +370,7 @@ const updateProductRoute = (req, res) => {
                 res.render('products/update-product-view', {
                     title: 'UPDATE PRODUCT',
                     cookie,
+                    role: req.cookies.role,
                     cat_names,
                     product: results[0],
                     product_images
@@ -471,8 +474,8 @@ const addToCart = (req, res) => {
                         const sql = 'INSERT INTO cart SET ?'
                         conn.query(sql, cartData, (err, results) => {
                             if (err) throw err;
-                            const path = '/categories/products/'+cat_id;
-                            res.redirect(path);
+                            // const path = '/categories/products/'+cat_id;
+                            res.redirect('/user/cart');
                         });
                     } else {
                         const quantity = cartData[0].product_qt;
@@ -480,8 +483,8 @@ const addToCart = (req, res) => {
                         const sql = `UPDATE cart SET ? WHERE product_id = '${product_id}' and user_id = '${user_id}'`;
                         conn.query(sql, cartData, (err, results) => {
                             if (err) throw err;
-                            const path = '/categories/products/'+cat_id;
-                            res.redirect(path);
+                            // const path = '/categories/products/'+cat_id;
+                            res.redirect('/user/cart');
                         });
                     }   
                 } else {

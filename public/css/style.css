@@ -114,6 +114,15 @@
     margin-top: 5px;
 }
 
+.order-status {
+	display: flex;
+	justify-content: right;
+}
+
+.order-status .btn-primary {
+	margin-right: 10px;
+}
+
 @media (min-width: 576px) {
 	.payment-form .title {
 		font-size: 1.2em; 

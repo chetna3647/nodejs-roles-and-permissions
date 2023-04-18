@@ -14,10 +14,21 @@ router.get('/user/checkout', userController.userOrderCheckout);
 router.post('/user/order', userController.order);
 router.get('/fetch-order', userController.fetchOrders);
 router.post('/payment/verify', userController.paymentVerify);
+
+//return order
 router.post('/return-order', userController.returnOrder);
 router.get('/return-orders-request', userController.returnOrderRequest);
 router.get('/approve-request', userController.approveRequest);
-router.get('/reject_request', userController.rejectRequest);
+router.get('/reject-request', userController.rejectRequest);
+
+//cancel order
+router.post('/cancel-order', userController.cancelOrder);
+router.get('/cancel-orders-request', userController.cancelOrderRequest);
+router.get('/approve-cancel-request', userController.approveCancelRequest);
+router.get('/reject-cancel-request', userController.rejectCancelRequest);
+
+//track order
+router.get('/track-order/:id', userController.trackOrder);
 
 //signup route
 router.get('/signup', userController.signupRoute);

@@ -32,6 +32,7 @@
     "nodemon": "^2.0.22",
     "otp-generator": "^4.0.1",
     "razorpay": "^2.8.6",
+    "shiprocket-api": "^1.1.4",
     "store2": "^2.14.2",
     "window": "^4.2.7"
   }

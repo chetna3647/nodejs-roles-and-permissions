@@ -20,6 +20,11 @@
                 <% } else { %>
                     <a href="/signup" class="navbar-brand">Sign Up</a>
                 <% } %>
+                <% if(role === '1'){ %>
+                    <a href="/user-role-permission" class="navbar-brand">User Role Permission</a>
+                    <a href="/return-orders-request" class="navbar-brand">Return orders</a>
+                    <a href="/cancel-orders-request" class="navbar-brand">Cancel orders</a>
+                <% } %>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
                 <div class="collapse navbar-collapse" id="navbarResponsive">
                     <ul class="navbar-nav ms-auto">

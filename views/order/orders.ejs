@@ -11,6 +11,7 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="/css/style.css" />
 </head>
 
 <body>
@@ -24,6 +25,11 @@
                     <a href="/fetch-order" class="navbar-brand">Order</a>
                 <% } else { %>
                     <a href="/login" class="navbar-brand">Login</a>
+                <% } %>
+                <% if(role === '1'){ %>
+                    <a href="/user-role-permission" class="navbar-brand">User Role Permission</a>
+                    <a href="/return-orders-request" class="navbar-brand">Return orders</a>
+                    <a href="/cancel-orders-request" class="navbar-brand">Cancel orders</a>
                 <% } %>
                 <% if(cookie && (role==1 || role==2)){ %><a href="/products/product/add-category"
                     class="btn btn-sm btn-primary">Add Product</a>
@@ -65,14 +71,27 @@
                         <div class="text-right">
                             <strong>Total: <%= product.total_charges %></strong>
                         </div>
-                        <form action="/return-order" method="POST">
-                            <div class="text-right">
-                                <input type="hidden" name="productId" value="<%= product.product_id %>">
-                                <input type="hidden" name="orderId" value="<%= product.order_id %>">
-                                <button class="btn btn-success">Return</button>
-                                <!-- <a href="/return-order" type="button" class="btn btn-success">Return</a> -->
-                            </div>
-                        </form>
+                        <h6><a href="/track-order/<%= product.order_id %>" class="nav-link">Track Order</a></h6><br><br>
+                        <div class="order-status">
+                            <form action="/return-order" method="POST">
+                                <div class="text-right">
+                                    <input type="hidden" name="productId" value="<%= product.product_id %>">
+                                    <input type="hidden" name="orderId" value="<%= product.order_id %>">
+                                    <% if(product.status == 'return' || product.status == '') { %>
+                                        <button class="btn btn-primary">Return</button>
+                                    <% } else { %>
+                                        <button class="btn btn-primary" disabled>Return</button>
+                                    <% } %><br><br>
+                                </div>
+                            </form>
+                            <form action="/cancel-order" method="POST">
+                                <div class="text-right">
+                                    <input type="hidden" name="productId" value="<%= product.product_id %>">
+                                    <input type="hidden" name="orderId" value="<%= product.order_id %>">
+                                    <button class="btn btn-success">Cancel</button>
+                                </div>
+                            </form>
+                        </div>
                     <% }); %>
                 </ul>
             </div>

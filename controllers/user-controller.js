@@ -14,6 +14,7 @@ const generateUniqueId = require('generate-unique-id');
 const {LocalStorage} = require('node-localstorage');
 const crypto = require('crypto');
 const Razorpay = require('razorpay');
+const { GetToken, CourierServiceability , Tracking_OrderId } = require('shiprocket-api');
 
 //home page route
 const homePage =  (req, res) => {
@@ -639,6 +640,7 @@ const otpVerification = async (req, res) => {
     });
 }
 
+//cart apis
 const cart = async (req, res) => {
     var cookie = '';
     if (req.cookies.jwt_token) {
@@ -917,6 +919,7 @@ const order = async (req, res) => {
     }
 }
 
+//payment verification
 const paymentVerify = async (req, res) => {
     const razorpay_signature =  req.body.response.razorpay_signature;
     const key_secret = "dVYuGy581GvKkrNTFRgy93DY"; 
@@ -1047,40 +1050,50 @@ const fetchOrders = async (req, res) => {
                         if(err) throw err;
                         var product_sql = `SELECT * FROM product_images WHERE product_id = '${order.product_id}'`;
                         conn.query(product_sql, async function (err, images) {
-                            if (err) throw err; 
-                            productData.forEach(product => { 
-                                products = {
-                                    product_id: product.product_id,
-                                    order_id: order.order_id,
-                                    product_images: [],
-                                    cat_name: product.cat_name,
-                                    product_name: product.product_name,
-                                    product_wt: product.product_wt,
-                                    product_sku: product.product_sku,
-                                    collection_name: product.collection_name,
-                                    gross_wt: product.gross_wt,
-                                    product_color: product.product_color,
-                                    product_purity: product.product_purity,
-                                    product_mat_charge: product.product_mat_charge,
-                                    huid_charges: product.huid_charges,
-                                    certificate_charges: product.certificate_charges,
-                                    product_charges: order.product_price,
-                                    product_qt: order.product_qt,
-                                    total_charges: order.product_qt*order.product_price
-                                }
-                                images.forEach(image => {
-                                    if (products.product_id == image.product_id) {
-                                        products.product_images.push({
-                                            product_image: image.product_image
-                                        })
+                            if (err) throw err;
+                            var status_sql = `SELECT * FROM order_status WHERE user_id = '${userId}'`;
+                            conn.query(status_sql, function(err, orderStatus){
+                                if(err) throw err;
+                                productData.forEach(product => { 
+                                    products = {
+                                        product_id: product.product_id,
+                                        order_id: order.order_id,
+                                        product_images: [],
+                                        cat_name: product.cat_name,
+                                        product_name: product.product_name,
+                                        product_wt: product.product_wt,
+                                        product_sku: product.product_sku,
+                                        collection_name: product.collection_name,
+                                        gross_wt: product.gross_wt,
+                                        product_color: product.product_color,
+                                        product_purity: product.product_purity,
+                                        product_mat_charge: product.product_mat_charge,
+                                        huid_charges: product.huid_charges,
+                                        certificate_charges: product.certificate_charges,
+                                        product_charges: order.product_price,
+                                        product_qt: order.product_qt,
+                                        total_charges: order.product_qt*order.product_price,
+                                        status: []
                                     }
+                                    images.forEach(image => {
+                                        if (products.product_id == image.product_id) {
+                                            products.product_images.push({
+                                                product_image: image.product_image
+                                            })
+                                        }
+                                    });
+                                    orderStatus.forEach(status => {
+                                        if((products.product_id == status.product_id) && (products.order_id == status.order_id)){
+                                            products.status = status.status;
+                                        }
+                                    })
+                                    totalProduct.push(products);
                                 });
-                                totalProduct.push(products);
-                            });
+                            })
                         });
                     })
                 });
-                setTimeout(() => {  
+                setTimeout(() => {
                     res.render('order/orders',{
                         title: "ORDER DETAILS",
                         products: totalProduct,
@@ -1088,11 +1101,12 @@ const fetchOrders = async (req, res) => {
                         role: req.cookies.role
                     });
                 }, 1000);
-            }) 
+            })
         }
     })
 }
 
+//return order
 const returnOrder = async (req, res) => {
     var cookie = '';
     if (req.cookies.jwt_token) {
@@ -1100,7 +1114,7 @@ const returnOrder = async (req, res) => {
     }
     const body = JSON.parse(JSON.stringify(req.body));
     console.log("Productid:"+body.productId, "Orderid:"+body.orderId);
-    var status = `SELECT * FROM order_status WHERE product_id = '${body.productId}' AND order_id = '${body.orderId}' AND user_id = '${req.cookies.userId}'`;
+    var status = `SELECT * FROM order_status WHERE product_id = '${body.productId}' AND order_id = '${body.orderId}' AND user_id = '${req.cookies.userId}' AND status = 'return'`;
     conn.query(status, function(err, result){
         if(err) throw err;
         if(result.length == 0) {
@@ -1139,7 +1153,7 @@ const returnOrderRequest = async (req, res) => {
     if (req.cookies.jwt_token) {
         cookie = req.headers.cookie.split(' ')[0].split('=')[1].replace(";", "");
     }
-    var return_orders_sql = 'SELECT * FROM order_status';
+    var return_orders_sql = `SELECT * FROM order_status WHERE status='return' OR status='approved' OR status='rejected'`;
     conn.query(return_orders_sql, function(err, return_orders) {
         if(err) throw err;
         var totalProduct = [];
@@ -1208,7 +1222,7 @@ const approveRequest = async (req, res) => {
         if(err) throw err;
         console.log("Request approved");
         res.redirect('/return-orders-request');
-    })
+    });
 }
 
 const rejectRequest = async (req, res) => {
@@ -1219,8 +1233,165 @@ const rejectRequest = async (req, res) => {
         if(err) throw err;
         console.log("Request Rejected");
         res.redirect('/return-orders-request');
+    });
+}
+
+
+//cancel order
+const cancelOrder = async (req, res) => {
+    const body = JSON.parse(JSON.stringify(req.body));
+    var status = `SELECT * FROM order_status WHERE product_id = '${body.productId}' AND order_id = '${body.orderId}' AND user_id = '${req.cookies.userId}'`;
+    conn.query(status, function(err, result){
+        if(err) throw err;
+        console.log(result.length);
+        if(result.length == 0) {
+            var status_sql = `INSERT INTO order_status (product_id, order_id, user_id, status) VALUES ('${body.productId}','${body.orderId}', '${req.cookies.userId}', 'cancel')`;
+            conn.query(status_sql, function(err, result){
+                if(err) throw err;
+                console.log(result);
+                const templateDir = path.join(__dirname + "../../templates/cancel-order.html");
+                const source = fs.readFileSync(templateDir, 'utf-8').toString();
+                const template = handlebars.compile(source);
+                const replacements = {
+                    userName: req.cookies.userName,
+                    orderId: body.orderId
+                };
+                const htmlToSend = template(replacements);
+                mailoption.to = req.cookies.userEmail;
+                mailoption.subject = "Cancel request";
+                mailoption.html = htmlToSend;
+        
+                smtpProtocol.sendMail(mailoption, function (err, response) {
+                    if (err) throw err;
+                    smtpProtocol.close();
+                    console.log("Mail sent for cancel request");
+                });
+                console.log("Cancel request is generated");
+                res.redirect('/fetch-order');
+            });
+        } else {
+            // res.status(200).send("Request is already sent");
+            var status_sql = `UPDATE order_status SET product_id = '${body.productId}', 
+            order_id = '${body.orderId}', user_id = '${req.cookies.userId}', status = 'cancel' WHERE 
+            product_id = '${body.productId}' AND order_id = '${body.orderId}' AND user_id = '${req.cookies.userId}'`;
+            conn.query(status_sql, function(err, result){
+                if(err) throw err;
+                const templateDir = path.join(__dirname + "../../templates/cancel-order.html");
+                const source = fs.readFileSync(templateDir, 'utf-8').toString();
+                const template = handlebars.compile(source);
+                const replacements = {
+                    userName: req.cookies.userName,
+                    orderId: body.orderId
+                };
+                const htmlToSend = template(replacements);
+                mailoption.to = req.cookies.userEmail;
+                mailoption.subject = "Cancel request";
+                mailoption.html = htmlToSend;
+        
+                smtpProtocol.sendMail(mailoption, function (err, response) {
+                    if (err) throw err;
+                    smtpProtocol.close();
+                    console.log("Mail sent for cancel request");
+                });
+                console.log("Cancel request is generated");
+                res.redirect('/fetch-order');
+            });
+        }
+    });
+}
+
+const cancelOrderRequest = async (req, res) => {
+    var cookie = '';
+    if (req.cookies.jwt_token) {
+        cookie = req.headers.cookie.split(' ')[0].split('=')[1].replace(";", "");
+    }
+    var return_orders_sql = `SELECT * FROM order_status WHERE status='cancel' OR status='approved cancel' OR status='rejected cancel'`;
+    conn.query(return_orders_sql, function(err, return_orders) {
+        if(err) throw err;
+        var totalProduct = [];
+        var productData = {};
+        return_orders.forEach(return_order => {
+            var product_sql = `SELECT products.product_id, categories.cat_name, products.product_name, 
+            products.product_wt, products.product_sku, products.collection_name, products.gross_wt, 
+            products.product_color, products.product_purity, products.product_mat_charge, products.huid_charges, 
+            products.certificate_charges, products.total_charges FROM products LEFT JOIN categories ON 
+            products.cat_id = categories.id WHERE products.product_id = '${return_order.product_id}'`;
+            conn.query(product_sql, function(err, products){
+                if(err) throw err;
+                var image_sql = `SELECT * FROM product_images WHERE product_id = '${return_order.product_id}'`;
+                conn.query(image_sql, function (err, product_images) {
+                    if (err) throw err;
+                    products.forEach(product => {
+                        if(product.product_id == return_order.product_id) {
+                            productData = {
+                                product_id: product.product_id,
+                                product_images: [],
+                                cat_name: product.cat_name,
+                                product_name: product.product_name,
+                                product_wt: product.product_wt,
+                                product_sku: product.product_sku,
+                                collection_name: product.collection_name,
+                                gross_wt: product.gross_wt,
+                                product_color: product.product_color,
+                                product_purity: product.product_purity,
+                                product_mat_charge: product.product_mat_charge,
+                                huid_charges: product.huid_charges,
+                                certificate_charges: product.certificate_charges,
+                                total_charges: product.total_charges,
+                                order_id: return_order.order_id,
+                                status: return_order.status,
+                                user_id: return_order.user_id
+                            }
+                        }
+                        product_images.forEach(image => {
+                            if (productData.product_id == image.product_id) {
+                                productData.product_images.push({
+                                    product_image: image.product_image
+                                })
+                            }
+                        });
+                        totalProduct.push(productData);
+                    });
+                });
+            });
+        });
+        setTimeout(() => {
+            res.render('order/cancel-order', {
+                title: "Cancel Requests",
+                role: req.cookies.role,
+                cookie,
+                products: totalProduct
+            });
+        }, 1000);
+    });
+}
+
+const approveCancelRequest = async (req, res) => {
+    var update_status_sql = `UPDATE order_status SET product_id = '${req.query.product_id}', 
+    order_id = '${req.query.order_id}', user_id = '${req.query.user_id}', status = 'approved cancel' 
+    WHERE product_id = '${req.query.product_id}' AND order_id = '${req.query.order_id}' AND user_id = '${req.query.user_id}'`;
+    conn.query(update_status_sql, function(err, result){
+        if(err) throw err;
+        console.log("Cancel Request approved");
+        res.redirect('/cancel-orders-request');
     })
 }
+
+const rejectCancelRequest = async (req, res) => {
+    var update_status_sql = `UPDATE order_status SET product_id = '${req.query.product_id}', 
+    order_id = '${req.query.order_id}', user_id = '${req.query.user_id}', status = 'rejected cancel' 
+    WHERE product_id = '${req.query.product_id}' AND order_id = '${req.query.order_id}' AND user_id = '${req.query.user_id}'`;
+    conn.query(update_status_sql, function(err, result){
+        if(err) throw err;
+        console.log("Cancel Request Rejected");
+        res.redirect('/cancel-orders-request');
+    });
+}
+
+//track order 
+const trackOrder = async (req, res) => {
+}
+
 
 exports.homePage = homePage;
 exports.userRoleRoute = userRoleRoute;
@@ -1252,3 +1423,8 @@ exports.returnOrder = returnOrder;
 exports.returnOrderRequest = returnOrderRequest;
 exports.approveRequest = approveRequest;
 exports.rejectRequest = rejectRequest;
+exports.cancelOrder = cancelOrder;
+exports.cancelOrderRequest = cancelOrderRequest;
+exports.approveCancelRequest = approveCancelRequest;
+exports.rejectCancelRequest = rejectCancelRequest;
+exports.trackOrder = trackOrder;

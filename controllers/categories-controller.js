@@ -149,6 +149,7 @@ const getCategoryById = (req, res) => {
             res.render('categories/single-category',{
                 title: 'CATEGORIES',
                 cookie,
+                role: req.cookies.role,
                 categories: results
             });
         } else {
@@ -165,7 +166,8 @@ const addCategoryRoute = (req, res) => {
     }
     res.render('categories/add-category-view',{
         title: 'ADD CATEGORY',
-        cookie
+        cookie,
+        role: req.cookies.role
     });
 };
 
@@ -209,6 +211,7 @@ const getEditCategory = (req, res) => {
         res.render('categories/update-category-view',{
             title: 'UPDATE CATEGORY',
             cookie,
+            role: req.cookies.role,
             category: result[0]
         });
     });
