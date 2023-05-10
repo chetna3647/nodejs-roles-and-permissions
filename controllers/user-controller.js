@@ -15,6 +15,9 @@ const {LocalStorage} = require('node-localstorage');
 const crypto = require('crypto');
 const Razorpay = require('razorpay');
 const { GetToken, CourierServiceability , Tracking_OrderId } = require('shiprocket-api');
+const axios = require('axios');
+const RandExp = require('randexp');
+const { log } = require('console');
 
 //home page route
 const homePage =  (req, res) => {
@@ -164,12 +167,17 @@ const userProfile = (req, res) => {
     let query = conn.query(sql, function(err, results) {
         if(err) throw err;
         const role = req.cookies.role;
-        res.render('user-profile/profile',{
-            title: 'Profile Page',
-            cookie,
-            users: results,
-            role
-        });
+        const role_name_sql = `SELECT role_name FROM roles WHERE role_id = '${role}'`;
+        conn.query(role_name_sql, function(err, result){
+            if(err) throw err;
+            res.render('user-profile/profile',{
+                title: 'Profile Page',
+                cookie,
+                users: results,
+                role,
+                role_name: result[0].role_name
+            });
+        })
     });
 }
 
@@ -263,6 +271,7 @@ const verificationMail = async (req, res) => {
     var sql = `SELECT * FROM users WHERE code = '${req.params.code}'`;
     conn.query(sql, function(err, result){
         if(err) throw err;
+        console.log(result);
         var update_sql = `UPDATE users SET isActive = 'true'`;
         conn.query(update_sql, function(err, results){
             if(err) throw err;
@@ -1390,6 +1399,194 @@ const rejectCancelRequest = async (req, res) => {
 
 //track order 
 const trackOrder = async (req, res) => {
+    // console.log(req.params.id);
+
+    //authentication instance
+    const axiosAuthInstance =  axios.create({
+        baseURL: process.env.SHIPROCKET_URL,
+    });
+
+    //authentication
+    const token = await axiosAuthInstance.post('auth/login', {
+        email : 'khatrichetna3647@gmail.com',
+        password: 'Chetna@123',
+    })
+
+    //axios instance
+    const axiosInstance =  axios.create({
+        baseURL: process.env.SHIPROCKET_URL,
+        headers: {
+            'Authorization': `Bearer ${token.data.token}`,
+        },
+    });
+
+    //create pickup address
+    const pickupLocations = await axiosInstance.get('settings/company/pickup');
+    const addresses = pickupLocations.data.data.shipping_address;
+    const request = {
+        "pickup_location": "Home",
+        "name": "Chetna Khatri",
+        "email": "chetna1@gmail.com",
+        "phone": "9087654321",
+        "address": "1st Floor, 10-A, Road number 5, behind Saheli Palace, Panchwati",
+        "address_2": "",
+        "city": "Udaipur",
+        "state": "Rajasthan",
+        "country": "India",
+        "pin_code": "313001"
+    }
+    addresses.forEach(async(address) => {
+        if(address != request){
+            try{
+                const {pickup_location, name, email, phone, address, address_2, city, state, country, pin_code } = request;
+                const result = await axiosInstance.post('settings/company/addpickup', {
+                    pickup_location,
+                    name,
+                    email,
+                    phone,
+                    address,
+                    address_2,
+                    city,
+                    state,
+                    country,
+                    pin_code,
+                  });
+                const { success, address: addressData  } = result.data;
+                if(!success) throw { message: 'Unable to register address' };
+                console.log("Address registered successfully!");
+                // res.status(200).json({message: "Address registered successfully!"});
+              }
+              catch(error){
+                const {response} = error;
+                const {data: {message} } = response;
+                // console.log("Unable to register address!");
+                // res.status(200).json({message: "Unable to register address!"});
+            }
+        }
+    });
+
+    //create order
+    try{
+        const order_request = {
+            "order_id": req.params.id,
+            "order_date": "2023-04-19 11:11",
+            "pickup_location": pickupLocations.data.data.shipping_address[0].pickup_location,
+            "channel_id": "",
+            "comment": "Reseller: M/s Goku",
+            "billing_customer_name": "test",
+            "billing_last_name": "test",
+            "billing_address": "House 221B, Leaf Village",
+            "billing_address_2": "Near Hokage House",
+            "billing_city": "New Delhi",
+            "billing_pincode": "110002",
+            "billing_state": "Delhi",
+            "billing_country": "India",
+            "billing_email": "naruto@uzumaki.com",
+            "billing_phone": "9876543210",
+            "shipping_is_billing": true,
+            "shipping_customer_name": "",
+            "shipping_last_name": "",
+            "shipping_address": "",
+            "shipping_address_2": "",
+            "shipping_city": "",
+            "shipping_pincode": "",
+            "shipping_country": "",
+            "shipping_state": "",
+            "shipping_email": "",
+            "shipping_phone": "",
+            "order_items": [
+                {
+                "name": "Kunai",
+                "sku": "chakra123",
+                "units": 10,
+                "selling_price": "900",
+                "discount": "",
+                "tax": "",
+                "hsn": 441122
+                }
+            ],
+            "payment_method": "Prepaid",
+            "shipping_charges": 0,
+            "giftwrap_charges": 0,
+            "transaction_charges": 0,
+            "total_discount": 0,
+            "sub_total": 9000,
+            "length": 10,
+            "breadth": 15,
+            "height": 20,
+            "weight": 2.5
+        }
+        const {
+          order_id, order_date, pickup_location, channel_id, comment,
+          billing_customer_name, billing_last_name, billing_address,
+          billing_address_2, billing_city, billing_pincode, billing_state,
+          billing_country, billing_email, billing_phone,
+          shipping_is_billing, order_items, payment_method, shipping_charges,
+          giftwrap_charges, transaction_charges, total_discount, sub_total,
+          length, breadth, height, weight,
+        } = order_request;
+  
+        const result = await axiosInstance.post('orders/create/adhoc', {
+          order_id, order_date, pickup_location, channel_id, comment,
+          billing_customer_name, billing_last_name, billing_address,
+          billing_address_2, billing_city, billing_pincode, billing_state,
+          billing_country, billing_email, billing_phone,
+          shipping_is_billing, order_items, payment_method, shipping_charges,
+          giftwrap_charges, transaction_charges, total_discount, sub_total,
+          length, breadth, height, weight,
+        });
+        const { data } = result.data;
+        // console.log(result.data);  
+    } catch (error){
+        // console.log(error);
+    }
+
+
+    //check courier serviceability
+    const allOrders = await axiosInstance.get('orders');
+    const orders = allOrders.data.data;
+    // console.log(orders);
+    orders.forEach(async (order) => {
+        const CourierServiceability = await axiosInstance.get(`courier/serviceability?pickup_postcode=313001&delivery_postcode=110002&order_id=${order.id}`);
+        try{
+            const service = CourierServiceability.data.data.available_courier_companies;
+            service.forEach(data => {
+                // console.log(data);  
+                res.write("Courier name: "+data.courier_name+"\t");
+                res.write("Estimated delivery days: "+data.estimated_delivery_days+"\n");   
+            });
+            res.end();
+        } catch(error) {
+            res.write("Invalid Pickup Pincode or Delivery Pincode");
+            // res.send(error);
+        }
+    });
+
+    //get orders
+    // const allOrders = await axiosInstance.get('orders');
+    // const orders = allOrders.data.data;
+    // orders.forEach(async(order) => {
+    //     order.shipments.forEach(async(shipment)=> {
+    //         try{
+    //             const result = await axiosInstance.post('courier/assign/awb', {
+    //               shipment_id: shipment.id,
+    //               courier_id: '',
+    //             });
+    //             const { data } = result.data;
+    //             if(data.hasOwnProperty('status_code')) throw { message: data.message };
+    //             const returnData = data.response.data;
+    //             returnData.awb_assign_status = data.awb_assign_status;
+    //             console.log(returnData);
+    //             // return { status: true, data: returnData, message: 'AWB assigned successfully!' }
+    //           }
+    //           catch (error){
+    //             // const message = this.parseError(error);
+    //             // return { status: false, data: null, message }
+    //             console.log(error);
+    //           }
+    //     })
+    //     //generate awb
+    // });
 }
 
 

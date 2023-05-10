@@ -43,7 +43,7 @@
                     <label for="product_images">Product Images : </label>
                     <% product_images.forEach(function(image) { %>
                         <div>
-                            <a href="http://localhost:5000/images/<%= image.product_image %>" target="_blank">Images</a>
+                            <a href="http://localhost:4000/images/<%= image.product_image %>" target="_blank">Images</a>
                         </div>
                     <% }); %>
                     <input type="file" name="product_image" id="product_image" multiple placeholder="Upload file" required>

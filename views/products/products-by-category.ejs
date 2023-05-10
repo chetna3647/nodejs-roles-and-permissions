@@ -41,29 +41,23 @@
             <div class="row">
             <% totalProduct.forEach(function(product){ %>
                 <div class="card col-lg-6">
-                    <h6>
-                        <% product.product_images.forEach(function(image) { %>
-                            <img src="http://localhost:5000/images/<%= image.product_image %>" alt="Image">
-                        <% }); %>
-                    </h6>
-                    <h6><b>Product ID :</b> <%= product.product_id %></h6>
-                    <h6><b>Category Name :</b> <%= product.cat_name %></h6>
-                    <h6><b>Product Weight :</b> <%= product.product_wt %></h6>
-                    <h6><b>Product Name :</b> <%= product.product_name %></h6>
-                    <h6><b>Product SKU :</b> <%= product.product_sku %></h6>
-                    <h6><b>Collection Name :</b> <%= product.collection_name %></h6>
-                    <h6><b>Gross Weight :</b> <%= product.gross_wt %></h6>
-                    <h6><b>Product Color :</b> <%= product.product_color %></h6>
-                    <h6><b>Product Purity :</b> <%= product.product_purity %></h6>
-                    <h6><b>Product Material Charges :</b> <%= product.product_mat_charge %></h6>
-                    <h6><b>Huid Charges :</b> <%= product.huid_charges %></h6>
-                    <h6><b>Certificate Charges :</b> <%= product.certificate_charges %></h6>
-                    <h6><b>Total Charges :</b> <%= product.total_charges %></h6>
-                    <a href="/products/product/add-to-cart/<%= product.product_id %>" class="btn btn-sm btn-primary">Add to cart</a><br>
-                    <% if(cookie && role == 1){ %>
-                        <a href="/products/edit-product/<%= product.product_id %>" class="btn btn-sm btn-primary">Edit</a><br>
-                        <a href="/products/delete-product/<%= product.product_id %>" class="btn btn-sm btn-danger">Delete</a><br>
-                    <% } %>
+                    <a href="/products/<%= product.product_id %>">
+                        <div style="width: 100%; height: 350px;">
+                            <% product.product_images.forEach(function(image) { %>
+                                <img src="http://localhost:4000/images/<%= image.product_image %>" alt="Image" width="100%" height="100%">
+                            <% }); %>
+                        </div>
+                        <h6><b>Product ID :</b> <a href="/products/<%= product.product_id %>"><%= product.product_id %></a></h6>
+                        <h6><b>Category Name :</b> <%= product.cat_name %></h6>
+                        <h6><b>Product Weight :</b> <%= product.product_wt %></h6>
+                        <h6><b>Product Name :</b> <%= product.product_name %></h6>
+                        <h6><b>Total Charges :</b> <%= product.total_charges %></h6>
+                        <a href="/products/product/add-to-cart/<%= product.product_id %>" class="btn btn-sm btn-primary">Add to cart</a><br>
+                        <% if(cookie && role == 1){ %>
+                            <a href="/products/edit-product/<%= product.product_id %>" class="btn btn-sm btn-primary">Edit</a><br>
+                            <a href="/products/delete-product/<%= product.product_id %>" class="btn btn-sm btn-danger">Delete</a><br>
+                        <% } %>
+                    </a>
                 </div>
                 <% }) %>
             </div>

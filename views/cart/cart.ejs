@@ -55,7 +55,7 @@
                         <li class="list-group-item clearfix">
                             <div class="col-xs-5">
                                 <% product.product_images.forEach(function(image) { %>
-                                    <img src="http://localhost:5000/images/<%= image.product_image %>" alt="Image">
+                                    <img src="http://localhost:4000/images/<%= image.product_image %>" alt="Image">
                                 <% }); %><br>
                                 <strong>Product : <%= product.product_name %></strong><br />
                                 <em>Category : <%= product.cat_name %></em>
